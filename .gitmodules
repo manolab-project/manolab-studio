@@ -1,0 +1,3 @@
+[submodule "src/manolab"]
+	path = src/manolab
+	url = https://github.com/manolab-project/manolab.git

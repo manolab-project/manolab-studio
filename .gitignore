@@ -1,0 +1,14 @@
+
+build-src-Desktop_Qt_MSVC2019_64bit-Debug/
+
+*.user
+
+build-src-Desktop_Qt_5_15_1_MSVC2019_64bit-Debug/
+
+src/out/
+
+*.dll
+
+src/build/
+
+src/.vs/
