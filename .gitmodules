@@ -4,3 +4,6 @@
 [submodule "src/ImGuiColorTextEdit"]
 	path = src/ImGuiColorTextEdit
 	url = https://github.com/manolab-project/ImGuiColorTextEdit.git
+[submodule "src/ImGuiFileDialog"]
+	path = src/ImGuiFileDialog
+	url = https://github.com/manolab-project/ImGuiFileDialog.git

@@ -23,7 +23,7 @@ private:
             std::string times;
             for (const auto & l : laps)
             {
-                double diff = l - start;
+                double diff = static_cast<double>(l - start);
                 diff /= 1000;
                 times += std::to_string(diff) + ";  ";
             }
