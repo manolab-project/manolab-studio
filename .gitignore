@@ -12,3 +12,5 @@ src/out/
 src/build/
 
 src/.vs/
+
+build/
