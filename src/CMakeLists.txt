@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(manolab-gui LANGUAGES C CXX)
+set(MANOLAB_PROJECT manolab-studio)
+
+project(${MANOLAB_PROJECT} LANGUAGES C CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
@@ -80,7 +82,7 @@ if(WIN32)
     )
 endif()
 
-add_executable(manolab-gui
+add_executable(${MANOLAB_PROJECT}
     ${SRCS}
 )
 
@@ -91,7 +93,7 @@ add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GL3W)
 add_definitions(-Dcimg_display=0)
 
 if(LINUX)
-target_link_libraries(manolab-gui
+target_link_libraries(${MANOLAB_PROJECT}
     manolab
     icl
     SDL2
@@ -100,7 +102,7 @@ target_link_libraries(manolab-gui
     OpenGL::GL
 )
 elseif(WIN32)
-target_link_libraries(manolab-gui
+target_link_libraries(${MANOLAB_PROJECT}
     manolab
     icl
     SDL2
@@ -108,13 +110,13 @@ target_link_libraries(manolab-gui
     OpenGL::GL
     ws2_32.lib psapi.lib setupapi.lib cfgmgr32.lib advapi32.lib Dbghelp.lib
 )
-set_target_properties(manolab-gui PROPERTIES
+set_target_properties(${MANOLAB_PROJECT} PROPERTIES
 LINK_FLAGS /SUBSYSTEM:CONSOLE
 )   
 endif()
 
 target_include_directories(
-    manolab-gui
+    ${MANOLAB_PROJECT}
     PUBLIC
     /usr/include/SDL2
     ${CMAKE_CURRENT_SOURCE_DIR}/gl3w

@@ -71,8 +71,7 @@ void TaskListWindow::Draw(const char *title, bool *p_open)
     {
         if (files.size() > 0)
         {
-            std::string fullPath = mEngine.GetWorkspace() + Util::DIR_SEPARATOR + "scripts"  + Util::DIR_SEPARATOR + files[item_current_idx];
-            mEngine.LoadScript(fullPath);
+            mEngine.LoadScript(files[item_current_idx]);
         }
     }
 

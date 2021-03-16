@@ -102,6 +102,7 @@ void MainWindow::SetupMainMenuBar()
 
 void MainWindow::Initialize()
 {
+    // GUI Init
     gui.Initialize();
     gui.ApplyTheme();
 
@@ -109,18 +110,14 @@ void MainWindow::Initialize()
     imgWindow.Initialize();
     taskList.Initialize();
 
+    std::function< void(int, const std::vector<Value>&) > cb = std::bind( &MainWindow::EngineEvents, this, std::placeholders::_1 , std::placeholders::_2 );
+    engine.RegisterEventEmitter(cb);
+
     mSettings.ReadSettings(engine);
     mSettings.WriteSettings(engine);
 
     taskList.ScanWorkspace();
-
-    std::function< void(int, const std::vector<Value>&) > cb = std::bind( &MainWindow::EngineEvents, this, std::placeholders::_1 , std::placeholders::_2 );
-    engine.RegisterEventEmitter(cb);
-
-
 }
-
-//engine.LoadScript(filePath.toStdString());
 
 void MainWindow::Loop()
 {
