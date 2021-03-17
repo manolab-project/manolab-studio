@@ -37,6 +37,8 @@ private:
     int64_t mStartTime;
     char buf2[10];
     void RefreshWindowParameter();
+    void SendToServer(const std::string &body, const std::string &host);
+    std::string ToCSV(const std::map<int64_t, Entry> &table, int64_t startTime);
 };
 
 #endif // TABLEWINDOW_H
