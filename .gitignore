@@ -12,3 +12,9 @@ src/out/
 src/build/
 
 src/.vs/
+
+delivery/
+
+*.exe
+
+build-src-Desktop_Qt_5_13_1_MinGW_64_bit-Debug/
