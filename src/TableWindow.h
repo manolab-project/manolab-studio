@@ -35,6 +35,7 @@ private:
     std::mutex mMutex;
     int64_t mWindow = 5000;
     int64_t mStartTime;
+    char mBufAddress[200];
     char buf2[10];
     void RefreshWindowParameter();
     void SendToServer(const std::string &body, const std::string &host);

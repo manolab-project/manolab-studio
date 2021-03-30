@@ -83,6 +83,27 @@ void TaskListWindow::Draw(const char *title, bool *p_open)
         }
     }
 
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+
+        if (ImGui::Button( ICON_FA_PAUSE " Pause", ImVec2(100, 40)))
+    {
+        if (mEngine.IsLoaded())
+        {
+            mEngine.Pause();
+        }
+    }
+
+    ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+
+    if (ImGui::Button( ICON_FA_STOP " Stop", ImVec2(100, 40)))
+    {
+        if (mEngine.IsLoaded())
+        {
+            mEngine.Stop();
+        }
+    }
+
+
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
 
 

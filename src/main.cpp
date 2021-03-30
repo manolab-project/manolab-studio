@@ -7,6 +7,8 @@
 #include <cstdlib>        // std::abort
 #include <csignal>
 
+#include "TcpSocket.h"
+
 #ifdef USE_LINUX_OS
 [[noreturn]] void signal_handler(int sig)
 {
@@ -40,6 +42,8 @@
 // Main code
 int main(int, char**)
 {
+    tcp::TcpSocket::Initialize();
+
 #ifdef USE_LINUX_OS
     std::set_terminate(terminate_handler);
 

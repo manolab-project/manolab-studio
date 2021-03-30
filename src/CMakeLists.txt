@@ -8,7 +8,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(CMAKE_VERBOSE_MAKEFILE on)
+# set(CMAKE_VERBOSE_MAKEFILE on)
 
 if (WIN32)
     link_directories(${CMAKE_CURRENT_SOURCE_DIR}/windows/SDL2/lib/x64)
@@ -58,6 +58,9 @@ set(SRCS
 
     MainWindow.cpp
     MainWindow.h
+
+    CourseWindow.cpp
+    CourseWindow.h
 
     TableWindow.cpp
     TableWindow.h

@@ -91,7 +91,7 @@ void TableWindow::Draw(const char *title, bool *p_open)
 
     /* ======================  Envoi dans le Cloud ====================== */
     ImGui::PushItemWidth(200);
-    ImGui::InputText("Adresse d'envoi des résultats",  buf2, sizeof(buf2), ImGuiInputTextFlags_CharsDecimal);
+    ImGui::InputText("Adresse d'envoi des résultats",  mBufAddress, sizeof(mBufAddress));
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button( "Envoyer", ImVec2(100, 40)))
@@ -113,7 +113,12 @@ void TableWindow::Draw(const char *title, bool *p_open)
     }
 
 
-    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg;
+    ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | 
+                ImGuiTableFlags_RowBg |
+                ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | 
+                ImGuiTableFlags_BordersOuter | ImGuiTableFlags_BordersV |
+                ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
+                ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti;
 
     if (ImGui::BeginTable("table1", 4, tableFlags))
     {

@@ -9,6 +9,7 @@
 #include "TaskListWindow.h"
 #include "Settings.h"
 #include "TableWindow.h"
+#include "CourseWindow.h"
 
 class MainWindow
 {
@@ -29,6 +30,7 @@ private:
     Settings mSettings;
     TableWindow tableWindow;
     ImGuiFileDialog fileDialog;
+    CourseWindow courseWindow;
 
     void SetupFileMenu();
     void SetupMainMenuBar();
