@@ -52,35 +52,34 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
         ImGui::EndPopup();
     }
 
-    ImGui::TextWrapped(
-                "Manolab console view");
-    ImGui::TextWrapped("Enter 'HELP' for help.");
+    ImGui::TextWrapped("Manolab console view");
+//    ImGui::TextWrapped("Enter 'HELP' for help.");
 
     // TODO: display items starting from the bottom
 
-    if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
-    ImGui::SameLine();
+//    if (ImGui::SmallButton("Add Debug Text"))  { AddLog("%d some text", Items.Size); AddLog("some more text"); AddLog("display very important message here!"); }
+//    ImGui::SameLine();
+//    if (ImGui::SmallButton("Add Debug Error")) { AddLog("[error] something went wrong"); }
+//    ImGui::SameLine();
     if (ImGui::SmallButton("Clear"))           { ClearLog(); }
     ImGui::SameLine();
     bool copy_to_clipboard = ImGui::SmallButton("Copy");
     //static float t = 0.0f; if (ImGui::GetTime() - t > 0.02f) { t = ImGui::GetTime(); AddLog("Spam %f", t); }
 
-    ImGui::Separator();
+//    ImGui::Separator();
 
-    // Options menu
-    if (ImGui::BeginPopup("Options"))
-    {
-        ImGui::Checkbox("Auto-scroll", &AutoScroll);
-        ImGui::EndPopup();
-    }
+//    // Options menu
+//    if (ImGui::BeginPopup("Options"))
+//    {
+//        ImGui::Checkbox("Auto-scroll", &AutoScroll);
+//        ImGui::EndPopup();
+//    }
 
-    // Options, Filter
-    if (ImGui::Button("Options"))
-        ImGui::OpenPopup("Options");
-    ImGui::SameLine();
-    Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+//    // Options, Filter
+//    if (ImGui::Button("Options"))
+//        ImGui::OpenPopup("Options");
+//    ImGui::SameLine();
+//    Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
     ImGui::Separator();
 
     // Reserve enough left-over height for 1 separator + 1 input text

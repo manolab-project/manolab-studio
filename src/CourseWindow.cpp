@@ -99,10 +99,10 @@ void CourseWindow::Draw(const char *title, bool *p_open)
 
     /* ======================  Réception de la course depuis le Cloud ====================== */
     ImGui::PushItemWidth(200);
-    ImGui::InputText("Adresse du serveur : ",  mBufAddress, sizeof(mBufAddress));
+    ImGui::InputText("Adresse du serveur",  mBufAddress, sizeof(mBufAddress));
     ImGui::SameLine();
-    ImGui::InputText("Adresse du serveur : ",  mPath, sizeof(mPath));
-        
+    ImGui::InputText("Chemin",  mPath, sizeof(mPath));
+
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(100);
     ImGui::InputText("Port",  mPort, sizeof(mPort), ImGuiInputTextFlags_CharsDecimal);

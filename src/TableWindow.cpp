@@ -6,9 +6,40 @@
 #include "TcpClient.h"
 #include "Log.h"
 
+#include <random>
+
+static const char gDefaultAddress[] = "127.0.0.1";
+static const char gDefaulPort[] = "8000";
+static const char gDefaultPath[] = "/reception_resultats.php";
+
+
 TableWindow::TableWindow()
 {
+    memcpy(mBufAddress, gDefaultAddress, sizeof(gDefaultAddress));
+    memcpy(mPath, gDefaultPath, sizeof(gDefaultPath));
+    memcpy(mPort, gDefaulPort, sizeof(gDefaulPort));
+
+
     RefreshWindowParameter();
+
+    // FAKE DATA FOR TESTS
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    std::uniform_int_distribution<uint64_t> dis(1, 5000);
+
+    // 10 coureurs
+    for (int i = 0; i < 10; i++)
+    {
+        Entry e;
+        e.tag = i + 1;
+        for (int tours = 0; tours < 4; tours++)
+        {
+            uint64_t time = tours * 120000 + dis(gen);
+            e.laps.push_back(time);
+        }
+        mTable[e.tag] = e;
+    }
+
 }
 
 void TableWindow::RefreshWindowParameter()
@@ -17,13 +48,13 @@ void TableWindow::RefreshWindowParameter()
     sprintf(buf2, "%.10s", tempWindow.c_str());
 }
 
-void TableWindow::SendToServer(const std::string &body, const std::string &host)
+void TableWindow::SendToServer(const std::string &body, const std::string &host, const std::string &path, uint16_t port)
 {
     HttpRequest request;
 
     request.method = "POST";
     request.protocol = "HTTP/1.1";
-    request.query = "/reception_resultats.php";
+    request.query = path;
     request.body = body;
     request.headers["Host"] = "www." + host;
     request.headers["Content-type"] = "application/csv";
@@ -33,7 +64,7 @@ void TableWindow::SendToServer(const std::string &body, const std::string &host)
     HttpProtocol http;
 
     client.Initialize();
-    if (client.Connect(host, 8123))
+    if (client.Connect(host, port))
     {
         if (client.Send(http.GenerateRequest(request)))
         {
@@ -50,24 +81,20 @@ void TableWindow::SendToServer(const std::string &body, const std::string &host)
     }
 }
 
-std::string TableWindow::ToCSV(const std::map<int64_t, Entry> &table, int64_t startTime)
+std::string TableWindow::ToJson(const std::map<int64_t, Entry> &table, int64_t startTime)
 {
-    std::string csv;
-
-    csv = "Tag, Tours, Temps\r\n";
+    JsonArray arr;
 
     for (const auto &t : table)
     {
-        std::stringstream ss;
+        JsonObject obj;
 
-        ss << t.first << ", "
-           << t.second.laps.size() << ", "
-           << t.second.ToString(startTime)
-           << std::endl;
-
-        csv += ss.str();
+        obj.AddValue("id", t.first);
+        obj.AddValue("tours", static_cast<uint32_t>(t.second.laps.size()));
+        obj.AddValue("temps", t.second.ToString(startTime));
+        arr.AddValue(obj);
     }
-    return csv;
+    return arr.ToString();
 }
 
 
@@ -84,19 +111,26 @@ void TableWindow::Draw(const char *title, bool *p_open)
     /* ======================  Export CSV ====================== */
     ImGui::Text("Tableau des passages");
     ImGui::SameLine();
-    if (ImGui::Button( "Export CSV", ImVec2(100, 40)))
+    if (ImGui::Button( "Export JSON", ImVec2(100, 40)))
     {
-        Util::StringToFile("export.csv", ToCSV(table, startTime), false);
+        Util::StringToFile("export.json", ToJson(table, startTime), false);
     }
 
     /* ======================  Envoi dans le Cloud ====================== */
     ImGui::PushItemWidth(200);
-    ImGui::InputText("Adresse d'envoi des résultats",  mBufAddress, sizeof(mBufAddress));
+    ImGui::InputText("Adresse du serveur",  mBufAddress, sizeof(mBufAddress));
+    ImGui::SameLine();
+    ImGui::InputText("Chemin",  mPath, sizeof(mPath));
+
+    ImGui::PopItemWidth();
+    ImGui::PushItemWidth(100);
+    ImGui::InputText("Port",  mPort, sizeof(mPort), ImGuiInputTextFlags_CharsDecimal);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button( "Envoyer", ImVec2(100, 40)))
     {
-        SendToServer(ToCSV(table, startTime), "127.0.0.1");
+        uint16_t port = Util::FromString<uint16_t>(mPort);
+        SendToServer(ToJson(table, startTime), mBufAddress, mPath, port);
     }
 
     ImGui::Text("Tags : %d", static_cast<int>(table.size()));
