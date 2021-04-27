@@ -6,9 +6,13 @@
 #include "TcpClient.h"
 #include "Log.h"
 
+static const char *gDefaultResultServer = "http://";
+
 TableWindow::TableWindow()
 {
     RefreshWindowParameter();
+
+    memcpy(mBufAddress, gDefaultResultServer, sizeof(gDefaultResultServer));
 }
 
 void TableWindow::RefreshWindowParameter()

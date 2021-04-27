@@ -54,6 +54,7 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
 
     ImGui::TextWrapped(
                 "Manolab console view");
+                /*
     ImGui::TextWrapped("Enter 'HELP' for help.");
 
     // TODO: display items starting from the bottom
@@ -81,6 +82,8 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
         ImGui::OpenPopup("Options");
     ImGui::SameLine();
     Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+
+    */
     ImGui::Separator();
 
     // Reserve enough left-over height for 1 separator + 1 input text
@@ -117,8 +120,8 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
     // - Split them into same height items would be simpler and facilitate random-seeking into your list.
     // - Consider using manual call to IsRectVisible() and skipping extraneous decoration from your items.
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(4, 1)); // Tighten spacing
-    if (copy_to_clipboard)
-        ImGui::LogToClipboard();
+    // if (copy_to_clipboard)
+    //     ImGui::LogToClipboard();
     for (int i = 0; i < Items.Size; i++)
     {
         const char* item = Items[i];
@@ -137,8 +140,8 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
         if (has_color)
             ImGui::PopStyleColor();
     }
-    if (copy_to_clipboard)
-        ImGui::LogFinish();
+    // if (copy_to_clipboard)
+    //     ImGui::LogFinish();
 
     if (ScrollToBottom || (AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY()))
         ImGui::SetScrollHereY(1.0f);

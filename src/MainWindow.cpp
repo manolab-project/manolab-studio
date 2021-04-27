@@ -137,7 +137,7 @@ void MainWindow::Loop()
         imgWindow.Draw("ImageWindow", nullptr);
         editor.Draw("Code Editor", nullptr);
         taskList.Draw("Test list", nullptr);
-        tableWindow.Draw("Table View", nullptr);
+        tableWindow.Draw("Tableau des passages", nullptr);
         courseWindow.Draw("Infos Course", nullptr);
 
         gui.EndFrame();
