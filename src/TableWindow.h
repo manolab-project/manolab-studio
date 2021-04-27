@@ -34,12 +34,15 @@ private:
     std::map<int64_t, Entry> mTable;
     std::mutex mMutex;
     int64_t mWindow = 5000;
-    int64_t mStartTime;
+    int64_t mStartTime = 0;
     char mBufAddress[200];
     char buf2[10];
+    char mPath[200];
+    char mPort[10];
+
     void RefreshWindowParameter();
-    void SendToServer(const std::string &body, const std::string &host);
-    std::string ToCSV(const std::map<int64_t, Entry> &table, int64_t startTime);
+    void SendToServer(const std::string &body, const std::string &host, const std::string &path, uint16_t port);
+    std::string ToJson(const std::map<int64_t, Entry> &table, int64_t startTime);
 };
 
 #endif // TABLEWINDOW_H
