@@ -1,6 +1,7 @@
 {
+    "autoload":"test_zebra7500.js",
     "plugins":[
         "zebrafx7500"
         ],
-    "workspace":"/home/anthony/git/manolab-project/workspace"
+    "workspace":"/home/anthony/git/manolab-project/manolab-studio/bin/workspace"
     }
