@@ -7,3 +7,6 @@
 [submodule "src/ImGuiFileDialog"]
 	path = src/ImGuiFileDialog
 	url = https://github.com/manolab-project/ImGuiFileDialog.git
+[submodule "src/icl"]
+	path = src/icl
+	url = https://github.com/brasserie/icl

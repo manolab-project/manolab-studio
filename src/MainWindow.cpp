@@ -6,14 +6,14 @@
 #include "Settings.h"
 
 MainWindow::MainWindow()
-    : taskList(engine)
+    : taskList(mEngine)
 {
 
 }
 
 MainWindow::~MainWindow()
 {
-    engine.Quit();
+    mEngine.Quit();
 }
 
 void MainWindow::SetupFileMenu()
@@ -87,8 +87,8 @@ void MainWindow::SetupMainMenuBar()
         {
         //   std::string filePathName = fileDialog.GetFilePathName();
             std::string ws = fileDialog.GetCurrentPath();
-            engine.SetWorkspace(ws);
-            mSettings.WriteSettings(engine);
+            mEngine.SetWorkspace(ws);
+            mSettings.WriteSettings(mEngine);
             console.AddMessage("[INFO] Workspace changed to: " + ws);
             taskList.ScanWorkspace();
 
@@ -111,10 +111,10 @@ void MainWindow::Initialize()
     taskList.Initialize();
 
     std::function< void(int, const std::vector<Value>&) > cb = std::bind( &MainWindow::EngineEvents, this, std::placeholders::_1 , std::placeholders::_2 );
-    engine.RegisterEventEmitter(cb);
+    mEngine.RegisterEventEmitter(cb);
 
-    mSettings.ReadSettings(engine);
-    mSettings.WriteSettings(engine);
+    mSettings.ReadSettings(mEngine);
+    mSettings.WriteSettings(mEngine);
 
     taskList.ScanWorkspace();
 }
@@ -137,8 +137,8 @@ void MainWindow::Loop()
         imgWindow.Draw("ImageWindow", nullptr);
         editor.Draw("Code Editor", nullptr);
         taskList.Draw("Test list", nullptr);
-        tableWindow.Draw("Tableau des passages", nullptr);
-        courseWindow.Draw("Infos Course", nullptr);
+        tableWindow.Draw("Tableau des passages", nullptr, mEngine);
+        courseWindow.Draw("Infos Course", nullptr, mEngine);
 
         gui.EndFrame();
     }

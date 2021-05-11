@@ -2,6 +2,7 @@
 #define TABLE_WINDOW_H
 
 #include "Value.h"
+#include "IProcessEngine.h"
 #include <vector>
 #include <map>
 #include <mutex>
@@ -10,7 +11,7 @@ class TableWindow
 {
 public:
     TableWindow();
-    void Draw(const char *title, bool *p_open);
+    void Draw(const char *title, bool *p_open, IProcessEngine& engine);
 
     void ParseAction(const std::vector<Value> &args);
 private:
@@ -39,6 +40,15 @@ private:
     char buf2[10];
     char mPath[200];
     char mPort[10];
+
+    std::vector<Value> mCatLabels;
+    // clé: nom catégorie
+    // valeur: si autorisée ou non
+    std::map<std::string, bool> mCategories;
+
+    // clé: numéro de dossard
+    // Valeur: catégorie
+    std::map<uint32_t, std::string> mDossards;
 
     void RefreshWindowParameter();
     void SendToServer(const std::string &body, const std::string &host, const std::string &path, uint16_t port);

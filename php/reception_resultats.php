@@ -5,7 +5,9 @@
     file_put_contents("php://stdout", "$body\r\n");
  
     //create a DB connection
-    $mysqli = new mysqli("127.0.0.1", "anthony", "1234", "pierobois");
+    
+//     $mysqli = new mysqli("127.0.0.1", "anthony", "1234", "pierobois");
+    $mysqli = new mysqli("mdbnsig168.mysql.db:3306", "mdbnsig168", "cKfnGnxx7jdy", "mdbnsig168");
     $mysqli->query("DROP TABLE manolab_results");
     $mysqli->query("CREATE TABLE IF NOT EXISTS manolab_results (
                 id BIGINT,

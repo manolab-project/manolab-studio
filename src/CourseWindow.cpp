@@ -4,11 +4,12 @@
 #include "Util.h"
 #include "HttpProtocol.h"
 #include "TcpClient.h"
+#include "HttpClient.h"
 #include "Log.h"
 
-static const char gDefaultAddress[] = "127.0.0.1";
-static const char gDefaulPort[] = "8000";
-static const char gDefaultPath[] = "/envoi_course.php";
+static const char gDefaultAddress[] = "mdbn.site";
+static const char gDefaulPort[] = "80";
+static const char gDefaultPath[] = "/docs/mdbn/gestion/envoi_course.php";
 
 CourseWindow::CourseWindow()
 {
@@ -17,83 +18,57 @@ CourseWindow::CourseWindow()
     memcpy(mPort, gDefaulPort, sizeof(gDefaulPort));
 }
 
-void CourseWindow::GetCourse(const std::string &host, const std::string &path, uint16_t port)
+bool CourseWindow::GetCourse(const std::string &host, const std::string &path, uint16_t port)
 {
-    HttpRequest request;
-    HttpProtocol proto;
-    tcp::TcpClient client;
-
-    request.method = "GET";
-    request.protocol = "HTTP/1.1";
-    request.query = path;
-    request.headers["Host"] = host;
-    request.headers["Content-type"] = "application/json";
-    // request.headers["Content-length"] = std::to_string(body.size());
-
-    client.Initialize();
-    if (client.Connect(host, port))
+    bool success = false;
+    HttpClient client;
+    std::string response;
+    if (client.Get(host, path, port, response))
     {
-        if (client.Send(proto.GenerateRequest(request)))
+        std::cout << response << std::endl;
+        JsonReader reader;
+        JsonValue json;
+        if (reader.ParseString(json, response))
         {
-            TLogInfo("[HTTP] Send request success!");
-            
-            std::string output;
-            if (client.RecvWithTimeout(output, 100*1024, 5000))
+            if (json.IsArray())
             {
-                // std::cout << output << "\r\n-----------------\r\n" << std::endl;
-              //  std::cout << "Size :" << output.size() << "\r\n" << std::endl;
-                HttpReply reply;
-                proto.ParseReplyHeader(output, reply);
-                JsonReader reader;
-                JsonValue json;
-                if (reader.ParseString(json, reply.body))
+                mTable.clear();
+                mCategories.clear();
+                for (const auto &e : json.GetArray())
                 {
-                    if (json.IsArray())
-                    {
-                        mTable.clear();
-                        mCategories.clear();
-                        for (const auto &e : json.GetArray())
-                        {
-                            Entry entry;
+                    Entry entry;
 
-                            entry.dossard = Util::FromString<uint64_t>(e.FindValue("dossard").GetString());
-                            entry.dbId = Util::FromString<uint64_t>(e.FindValue("id").GetString());
-                            entry.category = e.FindValue("F5").GetString();
-                            entry.lastname = e.FindValue("F6").GetString();
-                            entry.firstname = e.FindValue("F7").GetString();
-                            entry.club = e.FindValue("F8").GetString();
-                            mTable[entry.dossard] = entry;
+                    entry.dossard = Util::FromString<uint64_t>(e.FindValue("dossard").GetString());
+                    entry.dbId = Util::FromString<uint64_t>(e.FindValue("id").GetString());
+                    entry.category = e.FindValue("F5").GetString();
+                    entry.lastname = e.FindValue("F6").GetString();
+                    entry.firstname = e.FindValue("F7").GetString();
+                    entry.club = e.FindValue("F8").GetString();
+                    mTable[entry.dossard] = entry;
 
-                            mCategories.insert(entry.category);
-                        }
-                    }
-                    else
-                    {
-                        TLogError("[HTTP] JSON format: not an array!");
-                    }
+                    mCategories.insert(entry.category);
                 }
-                else
-                {
-                    TLogError("[HTTP] Parse JSON reply error");
-                }
+
+                success = true;
             }
             else
             {
-                TLogError("[HTTP] Receive timeout !!");
+                TLogError("[HTTP] JSON format: not an array!");
             }
         }
         else
         {
-            TLogError("[HTTP] Send request failed");
+            TLogError("[HTTP] Parse JSON reply error");
         }
     }
     else
     {
-        TLogError("[HTTP] Connect to server failed");
+        TLogError("[HTTP] Receive timeout !!");
     }
+    return success;
 }
 
-void CourseWindow::Draw(const char *title, bool *p_open)
+void CourseWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
 {
     ImGui::Begin(title, p_open);
 
@@ -111,8 +86,26 @@ void CourseWindow::Draw(const char *title, bool *p_open)
     if (ImGui::Button( "Récupérer", ImVec2(100, 40)))
     {
         uint16_t port = Util::FromString<uint16_t>(mPort);
-        GetCourse(mBufAddress, mPath, port);
+        if (GetCourse(mBufAddress, mPath, port))
+        {
+            std::vector<Value> line;
+            for (auto & c : mCategories)
+            {
+                line.push_back(c);
+            }
+            engine.SetTableEntry("categories", 0, line);
 
+            uint32_t index = 0;
+            for (const auto & e : mTable)
+            {
+                line.clear();
+
+                line.push_back(Value(e.second.dossard));
+                line.push_back(Value(e.second.category));
+                engine.SetTableEntry("dossards", index, line);
+                index++;
+            }
+        }
     }
 
     ImGui::Text("Participants : %d, Catégories : %d", static_cast<int>(mTable.size()), static_cast<int>(mCategories.size()));

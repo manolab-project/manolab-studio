@@ -21,7 +21,7 @@ public:
     void Loop();
 
 private:
-    ProcessEngine engine;
+    ProcessEngine mEngine;
     Gui gui;
     ImageWindow imgWindow;
     ConsoleWindow console;

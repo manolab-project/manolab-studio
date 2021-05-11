@@ -16,8 +16,9 @@ if (WIN32)
 
 endif (WIN32)
 
-set(ICL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/manolab/lib/icl)
-include(${CMAKE_CURRENT_SOURCE_DIR}/manolab/lib/icl/icl.cmake)
+set(ICL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/icl)
+include(${CMAKE_CURRENT_SOURCE_DIR}/icl/icl.cmake)
+
 
 if (MSVC)
      add_compile_options("/FS")
@@ -25,7 +26,7 @@ endif (MSVC)
 
 # The second parameter is output directory for the results of the targets from that subdirectory.
 add_subdirectory(manolab)
-add_subdirectory(manolab/lib/icl)
+add_subdirectory(icl)
 
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)

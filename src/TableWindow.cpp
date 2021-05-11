@@ -8,9 +8,9 @@
 
 #include <random>
 
-static const char gDefaultAddress[] = "127.0.0.1";
-static const char gDefaulPort[] = "8000";
-static const char gDefaultPath[] = "/reception_resultats.php";
+static const char gDefaultAddress[] = "mdbn.site";
+static const char gDefaulPort[] = "80";
+static const char gDefaultPath[] = "/docs/mdbn/gestion/reception_resultats.php";
 
 
 TableWindow::TableWindow()
@@ -21,7 +21,7 @@ TableWindow::TableWindow()
 
 
     RefreshWindowParameter();
-
+/*
     // FAKE DATA FOR TESTS
     std::random_device rd;
     std::mt19937_64 gen(rd());
@@ -39,6 +39,7 @@ TableWindow::TableWindow()
         }
         mTable[e.tag] = e;
     }
+    */
 
 }
 
@@ -57,7 +58,7 @@ void TableWindow::SendToServer(const std::string &body, const std::string &host,
     request.query = path;
     request.body = body;
     request.headers["Host"] = "www." + host;
-    request.headers["Content-type"] = "application/csv";
+    request.headers["Content-type"] = "application/json";
     request.headers["Content-length"] = std::to_string(body.size());
 
     tcp::TcpClient client;
@@ -98,7 +99,7 @@ std::string TableWindow::ToJson(const std::map<int64_t, Entry> &table, int64_t s
 }
 
 
-void TableWindow::Draw(const char *title, bool *p_open)
+void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
 {
     // Local copy to shorter mutex locking
     mMutex.lock();
@@ -106,7 +107,7 @@ void TableWindow::Draw(const char *title, bool *p_open)
     int64_t startTime = mStartTime;
     mMutex.unlock();
 
-    ImGui::Begin(title, p_open);
+    ImGui::Begin(title, nullptr);
 
     /* ======================  Export CSV ====================== */
     ImGui::Text("Tableau des passages");
@@ -146,6 +147,48 @@ void TableWindow::Draw(const char *title, bool *p_open)
        mWindow = Util::FromString<int64_t>(buf2) * 1000; // en millisecondes
     }
 
+    /* ======================  CATEGORIES ====================== */
+    uint32_t nbLines = engine.GetTableSize("categories");
+    if (nbLines == 1)
+    {
+        if (engine.GetTableEntry("categories", 0, mCatLabels))
+        {
+            // Les catégories ont changé
+            if (mCatLabels.size() != mCategories.size())
+            {
+                mCategories.clear();
+                for (const auto & c : mCatLabels)
+                {
+                    mCategories[c.GetString()] = false;
+                }
+
+                // On récupère tous les dossards et la catégorie associée
+                nbLines = engine.GetTableSize("dossards");
+
+                for (uint32_t i = 0; i < nbLines; i++)
+                {
+                    std::vector<Value> dossard;
+                    engine.GetTableEntry("dossards", i, dossard);
+                    if (dossard.size() == 2)
+                    {
+                        mDossards[dossard[0].GetInteger()] = dossard[1].GetString();
+                    }
+                }
+
+            }
+        }
+
+        uint32_t index = 0;
+        for (auto & c : mCategories)
+        {
+            ImGui::Checkbox(c.first.c_str(), &c.second);
+            index++;
+            if (index < mCategories.size())
+            {
+                ImGui::SameLine();
+            }
+        }
+    }
 
     ImGuiTableFlags tableFlags = ImGuiTableFlags_Borders | 
                 ImGuiTableFlags_RowBg |
@@ -197,34 +240,57 @@ void TableWindow::ParseAction(const std::vector<Value> &args)
             e.tag = json.FindValue("tag").GetInteger64();
             int64_t time = json.FindValue("time").GetInteger64();
 
-            mMutex.lock();
-
-            if (mTable.size() == 0)
+            // on récupère la catégorie de ce dossard (==tag)
+            if (mDossards.count(e.tag) > 0)
             {
-                mStartTime = time;
-            }
-
-            if (mTable.count(e.tag) > 0)
-            {
-                std::vector<int64_t> &l = mTable[e.tag].laps;
-                if (l.size() > 0)
+                std::string category = mDossards[e.tag];
+                if (mCategories.count(category) > 0)
                 {
-                    int64_t diff = time - l[l.size() - 1];
-
-                    if (diff > mWindow)
+                    if (mCategories[category])
                     {
-                        mTable[e.tag].laps.push_back(time);
+                        mMutex.lock();
+
+                        if (mTable.size() == 0)
+                        {
+                            mStartTime = time;
+                        }
+
+                        if (mTable.count(e.tag) > 0)
+                        {
+                            std::vector<int64_t> &l = mTable[e.tag].laps;
+                            if (l.size() > 0)
+                            {
+                                int64_t diff = time - l[l.size() - 1];
+
+                                if (diff > mWindow)
+                                {
+                                    mTable[e.tag].laps.push_back(time);
+                                }
+                            }
+
+                        }
+                        else
+                        {
+                            e.laps.push_back(time);
+                            mTable[e.tag] = e;
+                        }
+
+                        mMutex.unlock();
+                    }
+                    else
+                    {
+                        TLogError("Catégorie " + category + " interdite");
                     }
                 }
-
+                else
+                {
+                    TLogError("Catégorie inconnue: " + category);
+                }
             }
             else
             {
-                e.laps.push_back(time);
-                mTable[e.tag] = e;
+                TLogError("Dossard inconnu: " + std::to_string(e.tag));
             }
-
-            mMutex.unlock();
         }
     }
 }

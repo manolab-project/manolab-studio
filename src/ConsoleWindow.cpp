@@ -146,7 +146,7 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
     ImGui::PopStyleVar();
     ImGui::EndChild();
     ImGui::Separator();
-
+/*
     // Command-line
     bool reclaim_focus = false;
     ImGuiInputTextFlags input_text_flags = ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
@@ -164,7 +164,7 @@ void ConsoleWindow::Draw(const char *title, bool *p_open)
     ImGui::SetItemDefaultFocus();
     if (reclaim_focus)
         ImGui::SetKeyboardFocusHere(-1); // Auto focus previous widget
-
+*/
     ImGui::End();
 }
 

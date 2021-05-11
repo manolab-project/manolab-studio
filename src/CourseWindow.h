@@ -2,6 +2,7 @@
 #define COURSE_WINDOW_H
 
 #include "Value.h"
+#include "IProcessEngine.h"
 #include <vector>
 #include <map>
 #include <mutex>
@@ -11,7 +12,7 @@ class CourseWindow
 {
 public:
     CourseWindow();
-    void Draw(const char *title, bool *p_open);
+    void Draw(const char *title, bool *p_open, IProcessEngine &engine);
 
 private:
    char mBufAddress[200];
@@ -43,7 +44,7 @@ private:
 
    std::set<std::string> mCategories;
 
-   void GetCourse(const std::string &host, const std::string &path, uint16_t port);
+   bool GetCourse(const std::string &host, const std::string &path, uint16_t port);
 };
 
 #endif // COURSE_WINDOW_H
