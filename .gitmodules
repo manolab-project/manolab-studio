@@ -7,3 +7,6 @@
 [submodule "src/ImGuiFileDialog"]
 	path = src/ImGuiFileDialog
 	url = https://github.com/manolab-project/ImGuiFileDialog.git
+[submodule "imgui-node-editor"]
+	path = imgui-node-editor
+	url = https://github.com/manolab-project/imgui-node-editor

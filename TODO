@@ -1,0 +1,41 @@
+Node Editor:
+    ✔ Intégrer sous projet git @done(21-05-05 00:01)
+    ☐ Essai d'affichage d'un onglet
+    ☐ charger/sauver à partir d'un JSON au format node-RED
+    ☐ Choisir et éditer un fichier de script (comment ? via liste de fichiers ?)
+    
+Device Editor:
+    ☐ Node editor pour lier les devices ensemble
+    ☐ Schéma de câblage
+
+Séquenceur:
+    ☐ Afficher barre de progression totale
+    ☐ Afficher barre de progression étapes
+
+
+
+Diagnostique:
+    ☐ Afficher onglet de diagnostique
+    ☐ Première implémentation simple : état des devices du fichier de configuration
+
+Général:
+    ☐ Créer deux contextes : édition et exécution
+    ☐ Menu: Quitter le mode édition
+    ☐ Première implémentation : ne pas afficher les fenêtres d'édition en mode
+    ☐ Tables de registres pour échanger des données : N par device ? 
+    ☐ 
+
+Editeur d'étiquette:
+    ☐ Générateur de QrCode
+    ☐ Onglet de création d'étiquette avec preview dynamique
+    ☐ Fichier Javascript séparé ?
+    
+Protocoles:
+    ✔ Modbus @done(21-05-05 08:39)
+    ☐ MQTT
+    ☐ DLMS/Cosem (client)
+    ☐ ccTalk
+
+
+
+
