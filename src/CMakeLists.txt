@@ -22,6 +22,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/icl/icl.cmake)
 
 if (MSVC)
      add_compile_options("/FS")
+     add_link_options("/FS")
 endif (MSVC)
 
 # The second parameter is output directory for the results of the targets from that subdirectory.

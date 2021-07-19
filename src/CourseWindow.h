@@ -30,6 +30,7 @@ private:
        }
         int64_t dbId; // database table unique ID
         int64_t dossard;
+        int64_t tours; // nombre max de tours à effectuer
         std::string category;
         std::string firstname;
         std::string lastname;

@@ -45,17 +45,24 @@ if ($mysqli->connect_errno) {
 // echo 'PHP version: ' . phpversion();
 $myArray = array();
 
-if ($result = $mysqli->query("SELECT id, dossard, F5, F6, F7, F8, F10 FROM mod50_visforms_1")) {
+if ($result = $mysqli->query("SELECT id, dossard, tours, F5, F6, F7, F8, F10 FROM mod50_visforms_1")) {
 
   //  echo "Returned rows are: " . $result -> num_rows;
     
     header('Content-type: application/json');
-    while($row = $result->fetch_array(MYSQLI_ASSOC)) {
     
+    // -------- CODE QUI ENVOIE TOUTES LES LIGNES
+   
+    while($row = $result->fetch_array(MYSQLI_ASSOC)) {
             $myArray[] = $row;
-        //    echo json_encode($row);
     }
+    
+    // -------- CODE QUI ENVOIE UNE SEULE LIGNE (pour tests)
+//     $row = $result->fetch_array(MYSQLI_ASSOC);
+//     $myArray[] = $row;
 
+
+    // On encore directement le tableau
     echo json_encode(utf8ize( $myArray ));
     
 //     $out = json_encode($myArray);

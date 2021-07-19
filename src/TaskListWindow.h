@@ -4,8 +4,9 @@
 #include "Gui.h"
 #include "ImGuiFileDialog.h"
 #include "IProcessEngine.h"
+#include "WindowBase.h"
 
-class TaskListWindow
+class TaskListWindow : public WindowBase
 {
 public:
     TaskListWindow(IProcessEngine &engine);

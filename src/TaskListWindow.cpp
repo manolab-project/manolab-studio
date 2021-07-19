@@ -37,6 +37,11 @@ void TaskListWindow::ScanWorkspace()
 
 void TaskListWindow::Draw(const char *title, bool *p_open)
 {
+    if (!IsVisible())
+    {
+        return;
+    }
+
 //    const char *columns[] = { "Jean", "57", "2", "19min 54s" };
 
     static ImGuiComboFlags comboFlags = 0;

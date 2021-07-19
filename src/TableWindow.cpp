@@ -20,13 +20,41 @@ TableWindow::TableWindow()
     memcpy(mPort, gDefaulPort, sizeof(gDefaulPort));
 
 
+    timer.reset();
+
+
+    // Load previous export file saved
+    std::string fileData = Util::FileToString("export.json");
+
+    if (fileData.size() > 0)
+    {
+        JsonReader reader;
+        JsonValue json;
+        if (reader.ParseString(json, fileData))
+        {
+            TLogInfo("Importing export.json");
+            mStartTime = json.FindValue("startTime").GetInteger64();
+            JsonArray arr = json.FindValue("table").GetArray();
+
+            for (const auto& a : arr)
+            {
+                Entry e;
+
+                e.tag = a.FindValue("id").GetInteger64();
+                e.FromString(a.FindValue("temps").GetString(), mStartTime);
+
+                mTable[e.tag] = e;
+            }
+        }
+    }
+
     RefreshWindowParameter();
-/*
+    /*
     // FAKE DATA FOR TESTS
     std::random_device rd;
     std::mt19937_64 gen(rd());
     std::uniform_int_distribution<uint64_t> dis(1, 5000);
-
+    mTable.clear();
     // 10 coureurs
     for (int i = 0; i < 10; i++)
     {
@@ -39,8 +67,8 @@ TableWindow::TableWindow()
         }
         mTable[e.tag] = e;
     }
-    */
 
+    */
 }
 
 void TableWindow::RefreshWindowParameter()
@@ -99,8 +127,32 @@ std::string TableWindow::ToJson(const std::map<int64_t, Entry> &table, int64_t s
 }
 
 
+void TableWindow::Autosave(const std::map<int64_t, Entry>& table, int64_t startTime)
+{
+    JsonObject json;
+    JsonArray arr;
+
+    for (const auto& t : table)
+    {
+        JsonObject obj;
+
+        obj.AddValue("id", t.first);
+        obj.AddValue("tours", static_cast<uint32_t>(t.second.laps.size()));
+        obj.AddValue("temps", t.second.ToString(startTime));
+        arr.AddValue(obj);
+    }
+
+    json.AddValue("startTime", startTime);
+    json.AddValue("table", arr);
+
+    Util::StringToFile("export.json", json.ToString(), false);
+}
+
+
 void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
 {
+    (void) p_open;
+
     // Local copy to shorter mutex locking
     mMutex.lock();
     std::map<int64_t, Entry> table = mTable;
@@ -109,12 +161,14 @@ void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
 
     ImGui::Begin(title, nullptr);
 
-    /* ======================  Export CSV ====================== */
     ImGui::Text("Tableau des passages");
-    ImGui::SameLine();
-    if (ImGui::Button( "Export JSON", ImVec2(100, 40)))
+
+    if (timer.elapsed() > 10)
     {
-        Util::StringToFile("export.json", ToJson(table, startTime), false);
+        // Auto save
+        timer.reset();
+        Autosave(table, startTime);
+        TLogInfo("Auto-save file export.json in: " + Util::GetWorkingDirectory());
     }
 
     /* ======================  Envoi dans le Cloud ====================== */
@@ -162,7 +216,7 @@ void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
                     mCategories[c.GetString()] = false;
                 }
 
-                // On récupère tous les dossards et la catégorie associée
+                // On récupère tous les dossards, la catégorie associée et le nombre de tours du coureur
                 nbLines = engine.GetTableSize("dossards");
 
                 for (uint32_t i = 0; i < nbLines; i++)
@@ -172,6 +226,7 @@ void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
                     if (dossard.size() == 2)
                     {
                         mDossards[dossard[0].GetInteger()] = dossard[1].GetString();
+                        mToursMax[dossard[0].GetInteger()] = dossard[2].GetInteger();
                     }
                 }
 
@@ -197,11 +252,10 @@ void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
                 ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
                 ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti;
 
-    if (ImGui::BeginTable("table1", 4, tableFlags))
+    if (ImGui::BeginTable("table1", 3, tableFlags))
     {
-        ImGui::TableSetupColumn("Participant", ImGuiTableColumnFlags_WidthFixed);
-        ImGui::TableSetupColumn("Numéro", ImGuiTableColumnFlags_WidthFixed);
-        ImGui::TableSetupColumn("Tours", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("Dossard", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Tours", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Temps", ImGuiTableColumnFlags_WidthStretch);
 
         ImGui::TableHeadersRow();
@@ -210,13 +264,13 @@ void TableWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
         {
              ImGui::TableNextRow();
 
-             ImGui::TableSetColumnIndex(1);
+             ImGui::TableSetColumnIndex(0);
              ImGui::Text("%s", std::to_string(e.second.tag).c_str());
 
-             ImGui::TableSetColumnIndex(2);
+             ImGui::TableSetColumnIndex(1);
              ImGui::Text("%s", std::to_string(e.second.laps.size()).c_str());
 
-             ImGui::TableSetColumnIndex(3);
+             ImGui::TableSetColumnIndex(2);
 
              ImGui::Text("%s", e.second.ToString(startTime).c_str());
         }
@@ -240,10 +294,11 @@ void TableWindow::ParseAction(const std::vector<Value> &args)
             e.tag = json.FindValue("tag").GetInteger64();
             int64_t time = json.FindValue("time").GetInteger64();
 
-            // on récupère la catégorie de ce dossard (==tag)
-            if (mDossards.count(e.tag) > 0)
+            // on récupère la catégorie et le nombre de tours de ce dossard (indiqué par le tag) 
+            if ((mDossards.count(e.tag) > 0) && (mToursMax.count(e.tag) > 0))
             {
                 std::string category = mDossards[e.tag];
+                std::uint32_t tours_max = mToursMax[e.tag];
                 if (mCategories.count(category) > 0)
                 {
                     if (mCategories[category])
@@ -255,10 +310,13 @@ void TableWindow::ParseAction(const std::vector<Value> &args)
                             mStartTime = time;
                         }
 
+                        // Already detected in the past?
                         if (mTable.count(e.tag) > 0)
                         {
                             std::vector<int64_t> &l = mTable[e.tag].laps;
-                            if (l.size() > 0)
+                            // !!!! IMPORTANT !!!  On a toujours un passage en plus du nombre max de tours à effectuer
+                            // Ce passage en plus, c'est le départ !
+                            if ((l.size() > 0) && (l.size() <= tours_max))
                             {
                                 int64_t diff = time - l[l.size() - 1];
 

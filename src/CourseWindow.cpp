@@ -40,13 +40,18 @@ bool CourseWindow::GetCourse(const std::string &host, const std::string &path, u
 
                     entry.dossard = Util::FromString<uint64_t>(e.FindValue("dossard").GetString());
                     entry.dbId = Util::FromString<uint64_t>(e.FindValue("id").GetString());
+                    entry.tours = Util::FromString<uint64_t>(e.FindValue("tours").GetString());
                     entry.category = e.FindValue("F5").GetString();
                     entry.lastname = e.FindValue("F6").GetString();
                     entry.firstname = e.FindValue("F7").GetString();
                     entry.club = e.FindValue("F8").GetString();
-                    mTable[entry.dossard] = entry;
 
-                    mCategories.insert(entry.category);
+                    // Protection en cas de catégorie invalide ou non renseignée
+                    if (entry.category.size() > 0)
+                    {
+                        mTable[entry.dossard] = entry;
+                        mCategories.insert(entry.category);
+                    }
                 }
 
                 success = true;
@@ -74,13 +79,15 @@ void CourseWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
 
     /* ======================  Réception de la course depuis le Cloud ====================== */
     ImGui::PushItemWidth(200);
-    ImGui::InputText("Adresse du serveur",  mBufAddress, sizeof(mBufAddress));
-    ImGui::SameLine();
-    ImGui::InputText("Chemin",  mPath, sizeof(mPath));
+    ImGui::Text("Adresse du serveur"); ImGui::SameLine();
+    ImGui::InputText("",  mBufAddress, sizeof(mBufAddress));
+    ImGui::SameLine(); ImGui::Text("Chemin"); ImGui::SameLine();
+    ImGui::InputText("",  mPath, sizeof(mPath));
 
     ImGui::PopItemWidth();
     ImGui::PushItemWidth(100);
-    ImGui::InputText("Port",  mPort, sizeof(mPort), ImGuiInputTextFlags_CharsDecimal);
+    ImGui::SameLine(); ImGui::Text("Port"); ImGui::SameLine();
+    ImGui::InputText("",  mPort, sizeof(mPort), ImGuiInputTextFlags_CharsDecimal);
     ImGui::PopItemWidth();
     ImGui::SameLine();
     if (ImGui::Button( "Récupérer", ImVec2(100, 40)))
@@ -102,6 +109,7 @@ void CourseWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
 
                 line.push_back(Value(e.second.dossard));
                 line.push_back(Value(e.second.category));
+                line.push_back(Value(e.second.tours));
                 engine.SetTableEntry("dossards", index, line);
                 index++;
             }
@@ -117,11 +125,12 @@ void CourseWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
                 ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable |
                 ImGuiTableFlags_Sortable | ImGuiTableFlags_SortMulti;
 
-    if (ImGui::BeginTable("table1", 5, tableFlags))
+    if (ImGui::BeginTable("table1", 6, tableFlags))
     {
         ImGui::TableSetupColumn("Id", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Dossard", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Catégorie", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Tours", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Nom", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("Prénom", ImGuiTableColumnFlags_WidthStretch);
 
@@ -141,9 +150,12 @@ void CourseWindow::Draw(const char *title, bool *p_open, IProcessEngine &engine)
             ImGui::Text("%s", e.second.category.c_str());
 
             ImGui::TableSetColumnIndex(3);
-            ImGui::Text("%s", e.second.lastname.c_str());
+            ImGui::Text("%d", e.second.tours);
 
             ImGui::TableSetColumnIndex(4);
+            ImGui::Text("%s", e.second.lastname.c_str());
+
+            ImGui::TableSetColumnIndex(5);
             ImGui::Text("%s", e.second.firstname.c_str());
         }
 
