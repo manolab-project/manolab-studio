@@ -10,3 +10,6 @@
 [submodule "imgui-node-editor"]
 	path = imgui-node-editor
 	url = https://github.com/manolab-project/imgui-node-editor
+[submodule "libs/icl"]
+	path = libs/icl
+	url = git@github.com:brasserie/icl.git

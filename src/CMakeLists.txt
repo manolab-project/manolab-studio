@@ -10,14 +10,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
 
+set(MANOLAB_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/..)
+
 if (WIN32)
     link_directories(${CMAKE_CURRENT_SOURCE_DIR}/windows/SDL2/lib/x64)
     include_directories(${CMAKE_CURRENT_SOURCE_DIR}/windows/SDL2/include)
 
 endif (WIN32)
 
-set(ICL_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/manolab/lib/icl)
-include(${CMAKE_CURRENT_SOURCE_DIR}/manolab/lib/icl/icl.cmake)
+set(ICL_ROOT ${MANOLAB_ROOT_DIR}/libs/icl)
+include(${ICL_ROOT}/icl.cmake)
 
 if (MSVC)
      add_compile_options("/FS")
@@ -25,7 +27,7 @@ endif (MSVC)
 
 # The second parameter is output directory for the results of the targets from that subdirectory.
 add_subdirectory(manolab)
-add_subdirectory(manolab/lib/icl)
+add_subdirectory(${MANOLAB_ROOT_DIR}/libs/icl icl)
 
 if(POLICY CMP0072)
     cmake_policy(SET CMP0072 NEW)
@@ -124,7 +126,8 @@ endif()
 target_include_directories(
     ${MANOLAB_PROJECT}
     PUBLIC
-    /usr/include/SDL2
+    /usr/local/include
+    /usr/local/include/SDL2
     ${CMAKE_CURRENT_SOURCE_DIR}/gl3w
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui
     ${CMAKE_CURRENT_SOURCE_DIR}/imgui/backends
